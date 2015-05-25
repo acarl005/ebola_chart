@@ -3,8 +3,14 @@
 var chartHeight = parseInt(document.getElementById('graph').style.height);
 var chartWidth = parseInt(document.getElementById('graph').style.width);
 
+d3.json('ebola.json', function(err, json) {
+  json.forEach(function(point, i) {
+    setTimeout(addData, i * 100, 'graph', {'id':'v'+i, 'cases': point.cases - point.deaths, 'deaths': point.deaths});
+  });
+});
+
 // TODO we need a ceiling value
-var ceiling = 500;
+var ceiling = 25000;
 // Y scale will fit values from 0-10 within pixels 0 - height
 var y = d3.scale.linear().domain([0, ceiling]).range([0, chartHeight]);
 
@@ -20,7 +26,7 @@ function displayStackedChart(chartId) {
 }
 
 /* the property names on the data objects that we'll get data from */
-var propertyNames = ["a", "b", "c"];
+var propertyNames = ["cases", "deaths"];
 
 /**
 * Add or update a bar of data in the given chart
@@ -59,43 +65,15 @@ function addData(chartId, data) {
     for(index in propertyNames) {
       barGroup.append("rect")
         .attr("class", propertyNames[index])
-          .attr("width", (barDimensions.barWidth-1))
-          .attr("x", function () { return (barDimensions.numBars-1) * barDimensions.barWidth;})
-          .attr("y", barY(data, propertyNames[index]))
-          .attr("height", barHeight(data, propertyNames[index]));
+        .attr("width", (barDimensions.barWidth-1))
+        .attr("x", function () { return (barDimensions.numBars-1) * barDimensions.barWidth;})
+        .attr("y", barY(data, propertyNames[index]))
+        .attr("height", barHeight(data, propertyNames[index]));
     }
-
-    // setup an interval timer for this bar that will decay the coloring
-    // barGroup.styleInterval = setInterval(function() {
-    //     var theBar = document.getElementById(chartId + "_" + data.id);
-    //     if(theBar == undefined) {
-    //       clearInterval(barGroup.styleInterval);
-    //     } else {
-    //       if(theBar.style.opacity > 0.2) {
-    //         theBar.style.opacity = theBar.style.opacity - 0.05;
-    //       }
-    //     }
-    //   }, 1000);
-          //console.log("set interval: " + barGroup.styleInterval);
   }
 }
 
-/**
-* Remove a bar of data in the given chart
-*
-* The data object expects to have an 'id' property to identify itself (id == a single bar)
-* and have object properties with numerical values for each property in the 'propertyNames' array.
-*/
-// function removeData(chartId, barId) {
-//   var existingBarNode = document.querySelectorAll("#" + chartId + "_" + barId);
-//   if(existingBarNode.length > 0) {
-//     // bar exists so we'll remove it
-//     var barGroup = d3.select(existingBarNode.item());
-//     barGroup
-//       .transition().duration(200)
-//       .remove();
-//   }
-// }
+
 
 /**
 * Update the bar widths and x positions based on the number of bars.
@@ -151,10 +129,4 @@ function barHeight(data, propertyOfDataToDisplay) {
 }
 
 displayStackedChart("graph");
-
-d3.json('ebola.json', function(err, json) {
-  json.forEach(function(point, i) {
-    setTimeout(addData, i * 100, 'graph', {'id':'v'+i, 'a': point.cases, 'b': point.deaths, 'c':6});
-  });
-});
 
