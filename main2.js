@@ -42,8 +42,8 @@ d3.json('ebola.json', function(err, data) {
 
   data.forEach(function(d) {
     d.date = new Date(Date.parse(d.date));
-    casesArray.push({date: d.date, number: d.cases, symbol: 'cases'});
     deathsArray.push({date: d.date, number: d.deaths, symbol: 'deaths'});
+    casesArray.push({date: d.date, number: d.cases, symbol: 'cases'});
   });
 
   cases = d3.nest()
